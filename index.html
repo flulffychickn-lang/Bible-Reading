@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2ed">
+  <title>Bible Reading — New Testament Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- SheetJS is used only for Excel import/export. The tracker itself works offline. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="Bible Reading home">
+    <span class="brand-mark" aria-hidden="true">✚</span>
+    <span><strong>Bible Reading</strong><small>YOUR COMPANION THROUGH SCRIPTURE</small></span>
+  </a>
+  <nav class="top-actions" aria-label="Main actions">
+    <button class="button subtle" id="studyBtn">☆ Study List</button>
+    <button class="button subtle" id="howBtn">How to Use</button>
+    <button class="button icon-button" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">☾</button>
+  </nav>
+</header>
+
+<main class="container">
+  <section class="dashboard panel">
+    <div class="progress-area">
+      <div class="donut" id="donut"><div><strong id="percent">0%</strong><small>COMPLETE</small></div></div>
+      <div class="testament-stats">
+        <div class="mini-stat"><span class="mini-ring purple"></span><div><b>New Testament</b><small><span id="readCount">0</span> / 260 chapters</small></div></div>
+        <div class="mini-stat"><span class="mini-ring green"></span><div><b>Books finished</b><small><span id="booksDone">0</span> / 27 books</small></div></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <article class="stat-card"><strong id="chaptersRead">0</strong><span>Chapters read</span></article>
+      <article class="stat-card"><strong id="chaptersLeft">260</strong><span>Chapters to go</span></article>
+      <article class="stat-card"><strong id="booksFinished">0</strong><span>Books finished</span></article>
+      <article class="stat-card"><strong id="dailyGoal">3</strong><span>Daily chapter goal</span></article>
+      <article class="stat-card"><strong id="streak">0</strong><span>Current streak</span></article>
+      <article class="stat-card"><strong id="bestStreak">0</strong><span>Best streak</span></article>
+    </div>
+    <div class="overall">
+      <div class="overall-label"><b><span id="overallRead">0</span> of 260 chapters read</b><span id="remainingText">260 chapters remaining</span></div>
+      <div class="bar"><span id="overallBar"></span></div>
+    </div>
+  </section>
+
+  <section class="toolbar panel">
+    <div class="toolbar-title"><div><h1>New Testament Reading Tracker</h1><p>Read, reflect, and keep your progress in one place.</p></div></div>
+    <div class="toolbar-controls">
+      <label class="goal-control tracker-name-control">Tracker name <input id="trackerName" type="text" maxlength="60" placeholder="Enter your name" aria-label="Tracker owner name"></label>
+      <label class="goal-control">Daily goal <select id="goalSelect" aria-label="Daily chapter goal">
+        <option value="1">1 chapter</option><option value="2">2 chapters</option><option value="3" selected>3 chapters</option><option value="4">4 chapters</option><option value="5">5 chapters</option><option value="6">6 chapters</option><option value="10">10 chapters</option>
+      </select></label>
+      <button class="button primary" id="exportBtn">↓ Excel Backup</button>
+      <button class="button" id="reportBtn">Progress Report</button>
+      <label class="button file-button">↑ Import Excel<input type="file" id="importInput" accept=".xlsx,.xls"></label>
+    </div>
+  </section>
+
+  <section class="reading-progress-section">
+    <div class="section-heading"><h2>Reading progress</h2><span class="muted">Select a book, then tap only the chapter you want to update.</span></div>
+    <div class="panel progress-picker">
+      <label>Book
+        <select id="progressBook" aria-label="Select New Testament book"></select>
+      </label>
+    </div>
+    <section class="books-grid" id="booksGrid" aria-label="New Testament books"></section>
+  </section>
+
+  <section class="panel notes-panel">
+    <div class="notes-head"><div><h2>Personal Study Notes</h2><p class="muted">Notes are private to this browser and included in your Excel backup.</p></div><button class="button" id="allNotesBtn">View all notes</button></div>
+    <div class="note-form">
+      <label>Book<select id="noteBook"></select></label>
+      <label>Chapter<input id="noteChapter" type="number" min="1" max="28" value="1"></label>
+      <label>Date<input id="noteDate" type="date"></label>
+      <label class="note-text">Note<textarea id="noteText" rows="2" placeholder="What stood out to you?"></textarea></label>
+      <button class="button primary" id="saveNoteBtn">Save note</button>
+    </div>
+    <div id="notesList" class="notes-list"></div>
+  </section>
+
+  <section class="panel data-panel">
+    <div><h2>Backup & reports</h2><p class="muted">Your reading data is saved in this browser. Export a backup regularly to keep a copy or move it to another device.</p></div>
+    <div class="data-actions">
+      <button class="button" id="backupBtn">Download full Excel backup</button>
+      <button class="button" id="printBtn">Print progress</button>
+      <button class="button danger-outline" id="resetBtn">Reset all progress</button>
+    </div>
+  </section>
+  <footer>Bible Reading · New Testament edition · Your progress is stored locally in this browser.</footer>
+</main>
+
+<dialog id="chapterDialog">
+  <form method="dialog" class="dialog-close"><button aria-label="Close">×</button></form>
+  <div class="dialog-content">
+    <p class="eyebrow" id="dialogBook"></p><h2 id="dialogTitle">Chapter 1</h2>
+    <p class="popup-hint" id="chapterPopupHint">Choose whether you completed this chapter. Today's date is filled in automatically; adding a reflection is optional.</p>
+    <div class="status-choice">
+      <button class="button primary" id="markDoneBtn" type="button">✓ Done</button>
+      <button class="button" id="markNotDoneBtn" type="button">Not done</button>
+    </div>
+    <label>Reading date<input type="date" id="chapterDate"></label>
+    <label>What did you understand from this chapter? <span class="optional-label">(Optional)</span><textarea id="chapterNote" rows="5" placeholder="Write a short summary, reflection, lesson, or question..."></textarea></label>
+    <div class="dialog-actions"><button class="button" id="deleteChapterNote" type="button">Delete saved note</button></div>
+  </div>
+</dialog>
+
+<dialog id="infoDialog">
+  <form method="dialog" class="dialog-close"><button aria-label="Close">×</button></form>
+  <div class="dialog-content"><h2 id="infoTitle"></h2><div id="infoBody"></div></div>
+</dialog>
+</body>
+</html>
