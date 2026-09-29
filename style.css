@@ -92,3 +92,46 @@
   margin-left: 2px;
   margin-right: 2px;
 }
+
+
+/* Desktop toolbar fix: keep the import button fully visible and align actions. */
+@media (min-width: 1001px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .toolbar-controls {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .tracker-name-control {
+    grid-column: span 3;
+    min-width: 0;
+  }
+
+  .tracker-name-control input {
+    width: 100%;
+  }
+
+  .toolbar-controls > .goal-control {
+    grid-column: span 3;
+    min-width: 0;
+  }
+
+  .toolbar-controls > .button,
+  .toolbar-controls > .file-button {
+    grid-column: span 2;
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .toolbar-controls > .file-button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
