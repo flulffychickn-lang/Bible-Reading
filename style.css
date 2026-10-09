@@ -103,3 +103,12 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 .shared-viewer .main-nav{grid-template-columns:minmax(0,1fr);max-width:300px}
 .shared-viewer .nav-button[hidden]{display:none!important}
 .shared-viewer #themeBtn{display:none}
+
+/* Respect the hidden attribute even on elements styled as buttons or flex items. */
+[hidden] { display: none !important; }
+/* Shared lecture links are read-only: never show management actions. */
+.shared-viewer #addLectureBtn,
+.shared-viewer #shareAllLecturesBtn,
+.shared-viewer #shareLectureBtn,
+.shared-viewer #editLectureBtn,
+.shared-viewer #deleteLectureBtn { display: none !important; }
