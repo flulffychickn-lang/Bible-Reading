@@ -187,3 +187,36 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 #chapterDate::-webkit-date-and-time-value{min-height:1.35em;text-align:center;margin:0;}
 #chapterDialog .dialog-content{min-width:0;overflow-x:hidden;}
 #chapterDialog .status-actions{width:100%;min-width:0;}
+
+/* Fix native iOS date-control overflow in the chapter reading dialog. */
+#chapterDialog .dialog-content{
+  min-width:0;
+  max-width:100%;
+  overflow-x:hidden;
+}
+#chapterDialog #chapterDate{
+  display:block;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  inline-size:100%;
+  box-sizing:border-box;
+  margin:0;
+  padding:12px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  appearance:none;
+  -webkit-appearance:none;
+  overflow:hidden;
+  font:inherit;
+  line-height:1.35;
+}
+#chapterDialog #chapterDate::-webkit-date-and-time-value{
+  min-width:0;
+  text-align:center;
+  margin:0;
+}
+#chapterDialog #chapterDate::-webkit-calendar-picker-indicator{
+  margin:0;
+  flex-shrink:1;
+}
