@@ -217,6 +217,13 @@ function renderSharedLectureCards(){
 function enableSharedViewerMode(){
  sharedViewerMode=true;
  document.body.classList.add("shared-viewer");
+ // Remove owner-only controls from the DOM, not just hide them with CSS.
+ ["addLectureBtn","shareAllLecturesBtn","shareLectureBtn","editLectureBtn","deleteLectureBtn"].forEach(id=>$(id)?.remove());
+ // Keep the shared view strictly read-only; only the copy action remains in the detail dialog.
+ const detailActions=$("copyLectureBtn")?.parentElement;
+ if(detailActions){
+  detailActions.querySelectorAll("button").forEach(button=>{if(button.id!=="copyLectureBtn")button.remove()});
+ }
  document.querySelectorAll(".nav-button").forEach(btn=>{if(btn.dataset.tab!=="lecturesView")btn.hidden=true;else{btn.hidden=false;btn.classList.add("active");}});
  document.querySelectorAll(".tab-view").forEach(view=>{const active=view.id==="lecturesView";view.hidden=!active;view.classList.toggle("active",active)});
  $("addLectureBtn").hidden=true;$("shareAllLecturesBtn").hidden=true;
