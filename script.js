@@ -198,6 +198,18 @@ $("verseBook").addEventListener("change",()=>{const b=$("verseBook").value;$("ni
 $("verseChapter").addEventListener("change",()=>{const max=countBook($("verseBook").value);const c=Math.max(1,Math.min(Number($("verseChapter").value)||1,max));$("verseChapter").value=c;$("nivReaderBook").value=$("verseBook").value;renderNivChapters();$("nivReaderChapter").value=String(c);renderNivChapter()});
 renderNivChapters();
 load();if(data.theme==="light")document.body.classList.add("light");$("progressBook").value="Matthew";renderReading();renderLectures();
+function enableSharedViewerMode(){
+ sharedViewerMode=true;
+ document.body.classList.add("shared-readonly-mode");
+ document.querySelector(".main-nav").hidden=true;
+ document.querySelectorAll(".tab-view").forEach(view=>{view.hidden=view.id!=="lecturesView";view.classList.toggle("active",view.id==="lecturesView")});
+ document.querySelector("#lecturesView h1").textContent="Shared Lectures";
+ document.querySelector("#lecturesView .section-title .muted").textContent="Read-only view — shared lecture notes.";
+ $("shareAllLecturesBtn").hidden=true;$("addLectureBtn").hidden=true;
+ $("themeBtn").hidden=true;
+ // Shared links must never expose editing, backups, or the sender's local tracker.
+ $("lectureDialog").remove();
+}
 function openSharedLectureDetail(item){
  selectedSharedLecture=item;selectedLectureId=null;
  $("lectureDetailTitle").textContent=item.title||"Untitled lecture";

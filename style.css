@@ -171,3 +171,11 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 .niv-verse-text{flex:1;min-width:0}
 .niv-copy-verse{flex:0 0 auto;min-height:26px!important;padding:3px 7px!important;font-size:12px!important;line-height:1.1;width:auto!important;border-radius:7px}
 @media(max-width:600px){.niv-copy-verse{min-height:28px!important;padding:4px 7px!important}.niv-copy-actions{margin-top:6px}}
+
+/* Shared lecture links are deliberately read-only and show only the shared content. */
+.shared-readonly-mode .container{max-width:900px;padding-top:24px}
+.shared-readonly-mode #lecturesView .page-panel{min-height:50vh}
+.shared-readonly-mode #lectureDetailDialog #editLectureBtn,
+.shared-readonly-mode #lectureDetailDialog #deleteLectureBtn,
+.shared-readonly-mode #lectureDetailDialog #shareLectureBtn{display:none!important}
+.shared-readonly-mode #lectureDetailDialog #copyLectureBtn{display:inline-flex}
