@@ -254,5 +254,12 @@ function decodeSharedPayload(raw){
  enableSharedViewerMode();
  sharedViewerLectures=Array.isArray(shared)?shared:(shared&&Array.isArray(shared.lectures)?shared.lectures:(shared&&shared.title?[shared]:[]));
  sharedViewerLectures=sharedViewerLectures.filter(item=>item&&typeof item==="object"&&(item.title||item.learning||item.notes)).map(item=>({title:String(item.title||"Untitled lecture"),date:String(item.date||""),learning:String(item.learning||item.notes||"")}));
- renderSharedLectureCards();
+ if(single && sharedViewerLectures.length===1){
+  const host=$("lectureCards"); if(host) host.hidden=true;
+  const heading=document.querySelector("#lecturesView h1"); if(heading) heading.textContent="Shared Lecture";
+  const subtitle=document.querySelector("#lecturesView .section-title .muted"); if(subtitle) subtitle.textContent="Read-only lecture view.";
+  openSharedLectureDetail(sharedViewerLectures[0]);
+ }else{
+  renderSharedLectureCards();
+ }
 })();;
