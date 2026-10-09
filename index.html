@@ -1,115 +1,130 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f2ed">
-  <title>Bible Reading — New Testament Tracker</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- SheetJS is used only for Excel import/export. The tracker itself works offline. -->
-  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script defer src="script.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171a1b">
+<title>Bible Reading Tracker</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script defer src="script.js"></script>
 </head>
-<body>
+<body class="dark">
 <header class="topbar">
-  <a class="brand" href="#" aria-label="Bible Reading home">
-    <span class="brand-mark" aria-hidden="true">✚</span>
-    <span><strong>Bible Reading</strong><small>YOUR COMPANION THROUGH SCRIPTURE</small></span>
-  </a>
-  <nav class="top-actions" aria-label="Main actions">
-    <button class="button subtle" id="studyBtn">☆ Study List</button>
-    <button class="button subtle" id="howBtn">How to Use</button>
-    <button class="button icon-button" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">☾</button>
-  </nav>
+  <div class="brand"><span class="brand-mark" aria-hidden="true">✚</span><strong>Bible Reading</strong></div>
+  <button class="button" id="themeBtn" aria-label="Toggle light and dark mode">☀ / ☾</button>
 </header>
-
+<nav class="main-nav" aria-label="Main navigation">
+  <button class="nav-button active" data-tab="readingView">Bible Reading</button>
+  <button class="nav-button" data-tab="lecturesView">Lectures</button>
+  <button class="nav-button" data-tab="backupsView">Backups</button>
+</nav>
 <main class="container">
-  <section class="dashboard panel">
-    <div class="progress-area">
-      <div class="donut" id="donut"><div><strong id="percent">0%</strong><small>COMPLETE</small></div></div>
-      <div class="testament-stats">
-        <div class="mini-stat"><span class="mini-ring purple"></span><div><b>New Testament</b><small><span id="readCount">0</span> / 260 chapters</small></div></div>
-        <div class="mini-stat"><span class="mini-ring green"></span><div><b>Books finished</b><small><span id="booksDone">0</span> / 27 books</small></div></div>
+  <section id="readingView" class="tab-view active">
+    <section class="panel summary-panel">
+      <div><span class="summary-label">CHAPTERS READ</span><strong id="chaptersRead">0</strong><span class="summary-sub">of 260 chapters</span></div>
+      <div class="progress-track"><span id="overallBar"></span></div>
+      <span id="percent" class="percent">0%</span>
+    </section>
+    <section class="panel reading-panel">
+      <h1>Bible Reading</h1>
+      <p class="muted">Choose a book, then tap a chapter to update your reading.</p>
+      <label class="field-label" for="progressBook">Choose a Bible book</label>
+      <select id="progressBook" class="large-control"></select>
+      <div class="book-summary"><strong id="selectedBookTitle">Matthew</strong><span id="bookProgressText">0 of 28 chapters read</span></div>
+      <div class="progress-track book-track"><span id="bookProgressBar"></span></div>
+      <div id="booksGrid" class="chapter-grid" aria-label="Chapters"></div>
+      <p class="legend"><span class="legend-dot done-dot"></span> Done <span class="legend-dot"></span> Not done</p>
+    </section>
+  </section>
+
+  <section id="lecturesView" class="tab-view" hidden>
+    <section class="panel page-panel">
+      <div class="section-title"><div><h1>Lectures</h1><p class="muted">Save lessons, sermon notes, and things you learn.</p></div><div class="lecture-top-actions"><button id="shareAllLecturesBtn" class="button large-button" type="button">↗ Share All Lectures</button><button id="addLectureBtn" class="button primary large-button">＋ Add Lecture</button></div></div>
+      <div id="lectureCards" class="lecture-cards"></div>
+      <p id="emptyLectures" class="empty">No lectures saved yet. Tap “Add Lecture” to create your first card.</p>
+    </section>
+  </section>
+
+  <section id="backupsView" class="tab-view" hidden>
+    <section class="panel page-panel">
+      <h1>Backups</h1>
+      <p class="muted">Save a copy of your reading progress and lectures, or restore a previous backup.</p>
+      <div class="backup-actions">
+        <button class="button primary large-button" id="exportBtn">↓ Download Excel Backup</button>
+        <label class="button large-button import-button">↑ Import Excel Backup<input type="file" id="importInput" accept=".xlsx,.xls"></label>
       </div>
-    </div>
-    <div class="stats-grid">
-      <article class="stat-card"><strong id="chaptersRead">0</strong><span>Chapters read</span></article>
-      <article class="stat-card"><strong id="chaptersLeft">260</strong><span>Chapters to go</span></article>
-      <article class="stat-card"><strong id="booksFinished">0</strong><span>Books finished</span></article>
-      <article class="stat-card"><strong id="dailyGoal">3</strong><span>Daily chapter goal</span></article>
-      <article class="stat-card"><strong id="streak">0</strong><span>Current streak</span></article>
-      <article class="stat-card"><strong id="bestStreak">0</strong><span>Best streak</span></article>
-    </div>
-    <div class="overall">
-      <div class="overall-label"><b><span id="overallRead">0</span> of 260 chapters read</b><span id="remainingText">260 chapters remaining</span></div>
-      <div class="bar"><span id="overallBar"></span></div>
-    </div>
+      <p class="small-note">Importing a backup replaces the data currently saved in this browser. Keep a copy of your latest backup before importing.</p>
+    </section>
   </section>
-
-  <section class="toolbar panel">
-    <div class="toolbar-title"><div><h1>New Testament Reading Tracker</h1><p>Read, reflect, and keep your progress in one place.</p></div></div>
-    <div class="toolbar-controls">
-      <label class="goal-control tracker-name-control">Tracker name <input id="trackerName" type="text" maxlength="60" placeholder="Enter your name" aria-label="Tracker owner name"></label>
-      <label class="goal-control">Daily goal <select id="goalSelect" aria-label="Daily chapter goal">
-        <option value="1">1 chapter</option><option value="2">2 chapters</option><option value="3" selected>3 chapters</option><option value="4">4 chapters</option><option value="5">5 chapters</option><option value="6">6 chapters</option><option value="10">10 chapters</option>
-      </select></label>
-      <button class="button primary" id="exportBtn">↓ Excel Backup</button>
-      <button class="button" id="reportBtn">Progress Report</button>
-      <label class="button file-button"><span class="file-button-label">↑ Import Excel</span><input type="file" id="importInput" accept=".xlsx,.xls"></label>
-    </div>
-  </section>
-
-  <section class="reading-progress-section">
-    <div class="section-heading"><h2>Reading progress</h2><span class="muted">Select a book, then tap only the chapter you want to update.</span></div>
-    <div class="panel progress-picker">
-      <label>Book
-        <select id="progressBook" aria-label="Select New Testament book"></select>
-      </label>
-    </div>
-    <section class="books-grid" id="booksGrid" aria-label="New Testament books"></section>
-  </section>
-
-  <section class="panel notes-panel">
-    <div class="notes-head"><div><h2>Personal Study Notes</h2><p class="muted">Notes are private to this browser and included in your Excel backup.</p></div><button class="button" id="allNotesBtn">View all notes</button></div>
-    <div class="note-form">
-      <label>Book<select id="noteBook"></select></label>
-      <label>Chapter<input id="noteChapter" type="number" min="1" max="28" value="1"></label>
-      <label>Date<input id="noteDate" type="date"></label>
-      <label class="note-text">Note<textarea id="noteText" rows="2" placeholder="What stood out to you?"></textarea></label>
-      <button class="button primary" id="saveNoteBtn">Save note</button>
-    </div>
-    <div id="notesList" class="notes-list"></div>
-  </section>
-
-  <section class="panel data-panel">
-    <div><h2>Backup & reports</h2><p class="muted">Your reading data is saved in this browser. Export a backup regularly to keep a copy or move it to another device.</p></div>
-    <div class="data-actions">
-      <button class="button" id="backupBtn">Download full Excel backup</button>
-      <button class="button" id="printBtn">Print progress</button>
-      <button class="button danger-outline" id="resetBtn">Reset all progress</button>
-    </div>
-  </section>
-  <footer>Bible Reading · New Testament edition · Your progress is stored locally in this browser.</footer>
 </main>
 
 <dialog id="chapterDialog">
-  <form method="dialog" class="dialog-close"><button aria-label="Close">×</button></form>
+  <form method="dialog" class="dialog-close"><button aria-label="Close dialog">×</button></form>
   <div class="dialog-content">
-    <p class="eyebrow" id="dialogBook"></p><h2 id="dialogTitle">Chapter 1</h2>
-    <p class="popup-hint" id="chapterPopupHint">Choose whether you completed this chapter. Today's date is filled in automatically; adding a reflection is optional.</p>
-    <div class="status-choice">
-      <button class="button primary" id="markDoneBtn" type="button">✓ Done</button>
-      <button class="button" id="markNotDoneBtn" type="button">Not done</button>
+    <h2 id="dialogTitle">Matthew 1</h2>
+    <p class="muted">Choose the reading status and date.</p>
+    <label class="field-label" for="chapterDate">Reading date</label>
+    <input id="chapterDate" class="large-control" type="date">
+    <div class="status-actions">
+      <button id="markDoneBtn" class="button primary large-button" type="button">✓ Done</button>
+      <button id="markNotDoneBtn" class="button large-button" type="button">Not Done</button>
     </div>
-    <label>Reading date<input type="date" id="chapterDate"></label>
-    <label>What did you understand from this chapter? <span class="optional-label">(Optional)</span><textarea id="chapterNote" rows="5" placeholder="Write a short summary, reflection, lesson, or question..."></textarea></label>
-    <div class="dialog-actions"><button class="button" id="deleteChapterNote" type="button">Delete saved note</button></div>
   </div>
 </dialog>
 
-<dialog id="infoDialog">
-  <form method="dialog" class="dialog-close"><button aria-label="Close">×</button></form>
-  <div class="dialog-content"><h2 id="infoTitle"></h2><div id="infoBody"></div></div>
+<dialog id="lectureDialog">
+  <form method="dialog" class="dialog-close"><button aria-label="Close dialog">×</button></form>
+  <div class="dialog-content">
+    <h2 id="lectureDialogHeading">Add Lecture</h2>
+    <label class="field-label" for="lectureTitle">Lecture title</label>
+    <input id="lectureTitle" class="large-control" type="text" maxlength="100" placeholder="e.g. Faith and Patience">
+    <label class="field-label" for="lectureDate">Date</label>
+    <input id="lectureDate" class="large-control" type="date">
+    <fieldset class="verse-picker">
+      <legend>Add a Bible reference to your notes</legend>
+      <label class="field-label" for="verseBook">Book</label>
+      <select id="verseBook" class="large-control"></select>
+      <div class="verse-picker-row">
+        <label class="field-label" for="verseChapter">Chapter<input id="verseChapter" class="large-control" type="number" min="1" value="1" inputmode="numeric"></label>
+        <label class="field-label" for="verseStart">Verse<input id="verseStart" class="large-control" type="number" min="1" value="1" inputmode="numeric"></label>
+      </div>
+      <div class="verse-actions">
+        <button id="insertVerseBtn" class="button large-button" type="button">＋ Add Reference to Notes</button>
+        <button id="copyVerseBtn" class="button large-button" type="button">Copy Reference</button>
+      </div>
+      <label class="field-label" for="verseTranslation">Bible translation</label>
+      <select id="verseTranslation" class="large-control">
+        <option value="RCPV">RCPV (Cebuano)</option>
+        <option value="NIV">NIV (English)</option>
+      </select>
+      <div class="verse-actions">
+        <button id="loadVerseTextBtn" class="button large-button" type="button">Get Verse Text</button>
+        <button id="copyVerseTextBtn" class="button large-button" type="button">Copy Verse Text</button>
+      </div>
+      <p id="verseStatus" class="small-note">Choose a reference and translation, then get the verse text.</p>
+    </fieldset>
+    <label class="field-label" for="lectureLearning">Notes</label>
+    <textarea id="lectureLearning" class="large-control lecture-textarea" rows="6" placeholder="Write the main points, lessons, and reflections..."></textarea>
+    <div class="status-actions">
+      <button id="saveLectureBtn" class="button primary large-button" type="button">Save Lecture</button>
+      <button id="cancelLectureBtn" class="button large-button" type="button">Cancel</button>
+    </div>
+  </div>
+</dialog>
+<dialog id="lectureDetailDialog">
+  <form method="dialog" class="dialog-close"><button aria-label="Close dialog">×</button></form>
+  <div class="dialog-content">
+    <p id="lectureDetailDate" class="muted"></p>
+    <h2 id="lectureDetailTitle"></h2>
+    <div id="lectureDetailBody" class="lecture-detail-body"></div>
+    <div class="status-actions">
+      <button id="copyLectureBtn" class="button large-button" type="button">Copy Lecture</button>
+      <button id="shareLectureBtn" class="button large-button" type="button">↗ Share Online</button>
+      <button id="editLectureBtn" class="button primary large-button" type="button">Edit</button>
+      <button id="deleteLectureBtn" class="button danger-button large-button" type="button">Delete</button>
+    </div>
+  </div>
 </dialog>
 </body>
 </html>
