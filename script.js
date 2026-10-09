@@ -4,6 +4,7 @@ const BOOKS=[
 const KEY="chapterByChapterNT_v1";
 let data={completed:{},dates:{},goal:3,theme:"dark",userName:"",lectures:[]};
 let activeChapter={book:"Matthew",chapter:1}, editingLectureId=null, selectedLectureId=null;
+let sharedViewerMode=false, sharedViewerLectures=[], selectedSharedLecture=null;
 const $=id=>document.getElementById(id), chapterKey=(b,c)=>`${b}|${c}`;
 const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
 function load(){try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved)data={...data,...saved};if(!Array.isArray(data.lectures))data.lectures=[];}catch(e){console.warn(e)}}
@@ -193,30 +194,43 @@ $("copyVerseTextBtn").onclick=async()=>{
  try{await navigator.clipboard.writeText(loadedVerseText);alert("Verse text copied.")}catch(err){prompt("Copy verse text:",loadedVerseText)}
 };
 load();if(data.theme==="light")document.body.classList.add("light");$("progressBook").value="Matthew";renderReading();renderLectures();
+function openSharedLectureDetail(item){
+ selectedSharedLecture=item;selectedLectureId=null;
+ $("lectureDetailTitle").textContent=item.title||"Untitled lecture";
+ $("lectureDetailDate").textContent=item.date||"No date";
+ $("lectureDetailBody").textContent=item.learning||"";
+ $("copyLectureBtn").hidden=false;
+ $("editLectureBtn").hidden=true;$("deleteLectureBtn").hidden=true;$("shareLectureBtn").hidden=true;
+ $("lectureDetailDialog").showModal();
+}
+function renderSharedLectureCards(){
+ const host=$("lectureCards");host.innerHTML="";$("emptyLectures").hidden=sharedViewerLectures.length>0;
+ sharedViewerLectures.forEach((item,index)=>{
+  const card=document.createElement("button");card.type="button";card.className="lecture-card";
+  const title=document.createElement("strong");title.textContent=item.title||"Untitled lecture";
+  const date=document.createElement("time");date.textContent=item.date||"No date";
+  const excerpt=document.createElement("p");const learning=item.learning||"";excerpt.textContent=learning.length>180?learning.slice(0,180)+"…":learning;
+  const hint=document.createElement("span");hint.className="shared-card-hint";hint.textContent="Tap to open lecture →";
+  card.append(title,date,excerpt,hint);card.addEventListener("click",()=>openSharedLectureDetail(sharedViewerLectures[index]));host.append(card);
+ });
+}
+function enableSharedViewerMode(){
+ sharedViewerMode=true;
+ document.body.classList.add("shared-viewer");
+ document.querySelectorAll(".nav-button").forEach(btn=>{if(btn.dataset.tab!=="lecturesView")btn.hidden=true;else{btn.hidden=false;btn.classList.add("active");}});
+ document.querySelectorAll(".tab-view").forEach(view=>{const active=view.id==="lecturesView";view.hidden=!active;view.classList.toggle("active",active)});
+ $("addLectureBtn").hidden=true;$("shareAllLecturesBtn").hidden=true;
+ $("emptyLectures").textContent="No shared lectures were included in this link.";
+ $("lectureDetailDialog").addEventListener("close",()=>{selectedSharedLecture=null});
+}
 (function openSharedLectureFromLink(){
  const params=new URLSearchParams(window.location.search);
  const single=params.get("sharedLecture"),multiple=params.get("sharedLectures");
  if(!single&&!multiple)return;
  try{
   const decoded=decodeURIComponent(escape(atob(single||multiple))),shared=JSON.parse(decoded);
-  document.querySelector('[data-tab="lecturesView"]').click();
-  if(Array.isArray(shared)){
-   const host=$("lectureCards");host.innerHTML="";$("emptyLectures").hidden=true;
-   shared.forEach(item=>{
-    const card=document.createElement("article");card.className="lecture-card";
-    const title=document.createElement("strong");title.textContent=item.title||"Untitled lecture";
-    const date=document.createElement("time");date.textContent=item.date||"No date";
-    const body=document.createElement("p");body.textContent=item.learning||"";
-    const copy=document.createElement("button");copy.type="button";copy.className="button";copy.textContent="Copy lecture";
-    copy.addEventListener("click",async()=>{const text=`${item.title||"Untitled lecture"}\\n${item.date||""}\\n\\n${item.learning||""}`;try{await navigator.clipboard.writeText(text);alert("Lecture copied.")}catch(e){prompt("Copy lecture:",text)}});
-    card.append(title,date,body,copy);host.append(card);
-   });
-   $("addLectureBtn").hidden=true;$("shareAllLecturesBtn").hidden=true;
-  }else if(shared&&shared.title&&typeof shared.learning==="string"){
-   selectedLectureId=null;
-   $("lectureDetailTitle").textContent=shared.title;$("lectureDetailDate").textContent=shared.date||"Shared lecture";$("lectureDetailBody").textContent=shared.learning;
-   $("editLectureBtn").hidden=true;$("deleteLectureBtn").hidden=true;$("shareLectureBtn").hidden=true;$("copyLectureBtn").hidden=false;
-   $("lectureDetailDialog").showModal();
-  }
+  enableSharedViewerMode();
+  sharedViewerLectures=Array.isArray(shared)?shared:(shared&&shared.title&&typeof shared.learning==="string"?[shared]:[]);
+  renderSharedLectureCards();
  }catch(err){console.warn("Could not open shared lecture link",err)}
 })();

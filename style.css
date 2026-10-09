@@ -93,3 +93,13 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 }
 .verse-picker .small-note{font-size:13px;line-height:1.35;margin:8px 0 0}
 #verseStatus{white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Shared lecture links are read-only and show only the lecture collection. */
+.shared-viewer .topbar .brand strong{font-size:22px}
+.shared-viewer .topbar .brand strong{font-size:0}
+.shared-viewer .topbar .brand strong::after{content:"Shared Lectures";font-size:22px}
+.shared-viewer .lecture-card{width:100%;font:inherit;cursor:pointer}
+.shared-viewer .shared-card-hint{font-size:14px;font-weight:750;color:var(--orange);margin-top:4px}
+.shared-viewer .main-nav{grid-template-columns:minmax(0,1fr);max-width:300px}
+.shared-viewer .nav-button[hidden]{display:none!important}
+.shared-viewer #themeBtn{display:none}
