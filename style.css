@@ -112,3 +112,9 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 .shared-viewer #shareLectureBtn,
 .shared-viewer #editLectureBtn,
 .shared-viewer #deleteLectureBtn { display: none !important; }
+
+/* Keep the lecture date input aligned and usable on mobile Safari. */
+#lectureDate{width:100%;max-width:100%;min-width:0;display:block;box-sizing:border-box;appearance:none;-webkit-appearance:none;text-align:left;font:inherit;line-height:1.35;padding:12px 14px;}
+#lectureDialog .dialog-content{min-width:0;overflow:hidden;}
+#lectureDialog input,#lectureDialog textarea{max-width:100%;min-width:0;}
+.shared-viewer #emptyLectures{margin-top:20px;}

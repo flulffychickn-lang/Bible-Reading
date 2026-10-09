@@ -204,40 +204,39 @@ function openSharedLectureDetail(item){
  $("lectureDetailDialog").showModal();
 }
 function renderSharedLectureCards(){
- const host=$("lectureCards");host.innerHTML="";$("emptyLectures").hidden=sharedViewerLectures.length>0;
+ const host=$("lectureCards");host.innerHTML="";
+ $("emptyLectures").hidden=sharedViewerLectures.length>0;
+ $("emptyLectures").textContent="No lecture cards were found in this shared link. Ask the sender to create a new share link.";
  sharedViewerLectures.forEach((item,index)=>{
   const card=document.createElement("button");card.type="button";card.className="lecture-card";
   const title=document.createElement("strong");title.textContent=item.title||"Untitled lecture";
   const date=document.createElement("time");date.textContent=item.date||"No date";
-  const excerpt=document.createElement("p");const learning=item.learning||"";excerpt.textContent=learning.length>180?learning.slice(0,180)+"…":learning;
+  const excerpt=document.createElement("p");const learning=String(item.learning||item.notes||"");excerpt.textContent=learning.length>180?learning.slice(0,180)+"…":learning;
   const hint=document.createElement("span");hint.className="shared-card-hint";hint.textContent="Tap to open lecture →";
   card.append(title,date,excerpt,hint);card.addEventListener("click",()=>openSharedLectureDetail(sharedViewerLectures[index]));host.append(card);
  });
 }
-function enableSharedViewerMode(){
- sharedViewerMode=true;
- document.body.classList.add("shared-viewer");
- // Remove owner-only controls from the DOM, not just hide them with CSS.
- ["addLectureBtn","shareAllLecturesBtn","shareLectureBtn","editLectureBtn","deleteLectureBtn"].forEach(id=>$(id)?.remove());
- // Keep the shared view strictly read-only; only the copy action remains in the detail dialog.
- const detailActions=$("copyLectureBtn")?.parentElement;
- if(detailActions){
-  detailActions.querySelectorAll("button").forEach(button=>{if(button.id!=="copyLectureBtn")button.remove()});
+function decodeSharedPayload(raw){
+ if(!raw)return null;
+ const attempts=[raw];
+ try{attempts.push(decodeURIComponent(raw))}catch(e){}
+ for(const candidate of attempts){
+  for(const normalized of [candidate,candidate.replace(/ /g,"+")]){
+   try{return JSON.parse(decodeURIComponent(escape(atob(normalized))))}catch(e){}
+   try{return JSON.parse(atob(normalized))}catch(e){}
+   try{return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(normalized))))) }catch(e){}
+  }
+  try{return JSON.parse(candidate)}catch(e){}
  }
- document.querySelectorAll(".nav-button").forEach(btn=>{if(btn.dataset.tab!=="lecturesView")btn.hidden=true;else{btn.hidden=false;btn.classList.add("active");}});
- document.querySelectorAll(".tab-view").forEach(view=>{const active=view.id==="lecturesView";view.hidden=!active;view.classList.toggle("active",active)});
- $("addLectureBtn").hidden=true;$("shareAllLecturesBtn").hidden=true;
- $("emptyLectures").textContent="No shared lectures were included in this link.";
- $("lectureDetailDialog").addEventListener("close",()=>{selectedSharedLecture=null});
+ return null;
 }
 (function openSharedLectureFromLink(){
  const params=new URLSearchParams(window.location.search);
  const single=params.get("sharedLecture"),multiple=params.get("sharedLectures");
  if(!single&&!multiple)return;
- try{
-  const decoded=decodeURIComponent(escape(atob(single||multiple))),shared=JSON.parse(decoded);
-  enableSharedViewerMode();
-  sharedViewerLectures=Array.isArray(shared)?shared:(shared&&shared.title&&typeof shared.learning==="string"?[shared]:[]);
-  renderSharedLectureCards();
- }catch(err){console.warn("Could not open shared lecture link",err)}
-})();
+ const shared=decodeSharedPayload(single||multiple);
+ enableSharedViewerMode();
+ sharedViewerLectures=Array.isArray(shared)?shared:(shared&&Array.isArray(shared.lectures)?shared.lectures:(shared&&shared.title?[shared]:[]));
+ sharedViewerLectures=sharedViewerLectures.filter(item=>item&&typeof item==="object"&&(item.title||item.learning||item.notes)).map(item=>({title:String(item.title||"Untitled lecture"),date:String(item.date||""),learning:String(item.learning||item.notes||"")}));
+ renderSharedLectureCards();
+})();;
