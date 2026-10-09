@@ -159,40 +159,44 @@ $("verseChapter").max=28;
 $("verseBook").addEventListener("change",()=>{$("verseChapter").max=countBook($("verseBook").value);if(Number($("verseChapter").value)>countBook($("verseBook").value))$("verseChapter").value=1});
 $("insertVerseBtn").onclick=()=>{const ref=currentVerseReference();if(ref)insertAtCursor($("lectureLearning"),ref)};
 $("copyVerseBtn").onclick=async()=>{const ref=currentVerseReference();if(!ref)return;try{await navigator.clipboard.writeText(ref);alert(`${ref} copied.`)}catch(err){prompt("Copy this Bible reference:",ref)}};
-let loadedVerseText="";
-async function fetchVerseText(){
- const ref=currentVerseReference();if(!ref)return;
- const translation=$("verseTranslation").value;
- $("verseStatus").textContent="Loading verse text…";loadedVerseText="";
- // Bible API translation IDs: RCPV is not reliably available through a public API;
- // NIV text is copyrighted and cannot be fetched/reproduced from an unlicensed endpoint.
- if(translation==="NIV"){
-  $("verseStatus").textContent="NIV verse text is copyrighted and isn't available through this app's public lookup. You can open an authorized NIV source to read it, then paste the text into Notes.";
-  const query=encodeURIComponent(ref+" NIV Bible");
-  const link=document.createElement("a");link.href="https://www.biblegateway.com/quicksearch/?quicksearch="+query+"&version=NIV";link.target="_blank";link.rel="noopener noreferrer";link.textContent="Open "+ref+" in NIV on Bible Gateway";
-  $("verseStatus").append(document.createTextNode("\\n"),link);return;
- }
- // RCPV availability varies by service. Query a public Bible API and report clearly if unavailable.
- try{
-  const url="https://bible-api.com/"+encodeURIComponent(ref)+"?translation=ceb";
-  const response=await fetch(url);
-  if(!response.ok)throw new Error("Translation not available");
-  const result=await response.json();
-  if(!result.text)throw new Error("No verse text returned");
-  loadedVerseText=`${ref} (RCPV)\\n${result.text.trim()}`;
-  $("verseStatus").textContent=loadedVerseText+"\\n\\nNote: the lookup service may return a Cebuano translation other than RCPV. Please verify the translation before using it.";
- }catch(err){
-  $("verseStatus").textContent="RCPV verse text could not be retrieved from the available online lookup. You can open an online Bible and copy the exact RCPV text into Notes.";
-  const query=encodeURIComponent(ref+" RCPV Bible");
-  const link=document.createElement("a");link.href="https://www.google.com/search?q="+query;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Find "+ref+" in RCPV";
-  $("verseStatus").append(document.createTextNode("\\n"),link);
- }
+const nivBookNames=BOOKS.map(([name])=>name);
+function renderNivChapters(){
+ const book=$("nivReaderBook").value||"Matthew";
+ const chapters=window.NIV_NEW_TESTAMENT?.[book]||[];
+ $("nivReaderChapter").innerHTML=chapters.map((_,i)=>`<option value="${i+1}">Chapter ${i+1}</option>`).join("");
+ const requested=Number($("verseChapter").value)||1;
+ $("nivReaderChapter").value=String(Math.min(requested,chapters.length)||1);
+ renderNivChapter();
 }
-$("loadVerseTextBtn").onclick=fetchVerseText;
-$("copyVerseTextBtn").onclick=async()=>{
- if(!loadedVerseText){alert("Get the verse text first. If it isn't available, copy it from an authorized Bible source into Notes.");return}
- try{await navigator.clipboard.writeText(loadedVerseText);alert("Verse text copied.")}catch(err){prompt("Copy verse text:",loadedVerseText)}
-};
+function renderNivChapter(){
+ const book=$("nivReaderBook").value||"Matthew";
+ const chapter=Number($("nivReaderChapter").value)||1;
+ const verses=window.NIV_NEW_TESTAMENT?.[book]?.[chapter-1]||[];
+ $("nivBookText").innerHTML=verses.map(v=>`<p class="niv-verse"><span class="niv-verse-text"><sup>${v.n}</sup> ${escapeHtml(v.t)}</span><button type="button" class="button niv-copy-verse" data-verse="${v.n}" title="Copy verse ${v.n}" aria-label="Copy verse ${v.n}">Copy</button></p>`).join("")||"No text available for this chapter.";
+}
+async function copyBibleText(text,label){
+ try{await navigator.clipboard.writeText(text);}
+ catch(err){const box=document.createElement("textarea");box.value=text;box.style.position="fixed";box.style.opacity="0";document.body.append(box);box.select();const ok=document.execCommand("copy");box.remove();if(!ok){prompt(`Copy ${label}:`,text);return;}}
+ const button=document.activeElement;
+ if(button&&button.tagName==="BUTTON"){const old=button.textContent;button.textContent="Copied!";setTimeout(()=>button.textContent=old,1200);}
+}
+$("nivBookText").addEventListener("click",e=>{
+ const button=e.target.closest(".niv-copy-verse");if(!button)return;
+ const book=$("nivReaderBook").value,chapter=Number($("nivReaderChapter").value),verseNo=Number(button.dataset.verse);
+ const verse=window.NIV_NEW_TESTAMENT?.[book]?.[chapter-1]?.find(v=>v.n===verseNo);if(!verse)return;
+ copyBibleText(`${book} ${chapter}:${verseNo} — ${verse.t}`,"verse text");
+});
+$("copyNivChapterBtn").addEventListener("click",()=>{
+ const book=$("nivReaderBook").value,chapter=Number($("nivReaderChapter").value),verses=window.NIV_NEW_TESTAMENT?.[book]?.[chapter-1]||[];
+ if(!verses.length)return;
+ copyBibleText(`${book} ${chapter}\n\n${verses.map(v=>`${v.n} ${v.t}`).join("\n")}`,"chapter text");
+});
+$("nivReaderBook").innerHTML=nivBookNames.map(b=>`<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join("");
+$("nivReaderBook").addEventListener("change",renderNivChapters);
+$("nivReaderChapter").addEventListener("change",renderNivChapter);
+$("verseBook").addEventListener("change",()=>{const b=$("verseBook").value;$("nivReaderBook").value=b;renderNivChapters()});
+$("verseChapter").addEventListener("change",()=>{const max=countBook($("verseBook").value);const c=Math.max(1,Math.min(Number($("verseChapter").value)||1,max));$("verseChapter").value=c;$("nivReaderBook").value=$("verseBook").value;renderNivChapters();$("nivReaderChapter").value=String(c);renderNivChapter()});
+renderNivChapters();
 load();if(data.theme==="light")document.body.classList.add("light");$("progressBook").value="Matthew";renderReading();renderLectures();
 function openSharedLectureDetail(item){
  selectedSharedLecture=item;selectedLectureId=null;

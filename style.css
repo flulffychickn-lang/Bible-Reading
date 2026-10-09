@@ -114,7 +114,60 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 .shared-viewer #deleteLectureBtn { display: none !important; }
 
 /* Keep the lecture date input aligned and usable on mobile Safari. */
-#lectureDate{width:100%;max-width:100%;min-width:0;display:block;box-sizing:border-box;appearance:none;-webkit-appearance:none;text-align:left;font:inherit;line-height:1.35;padding:12px 14px;}
-#lectureDialog .dialog-content{min-width:0;overflow:hidden;}
-#lectureDialog input,#lectureDialog textarea{max-width:100%;min-width:0;}
+#lectureDate{
+  display:block;
+  width:100%;
+  inline-size:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  margin:0;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--bg);
+  color:var(--text);
+  appearance:none;
+  -webkit-appearance:none;
+  text-align:center;
+  font:inherit;
+  line-height:1.35;
+  padding:12px 14px;
+  overflow:hidden;
+}
+#lectureDate::-webkit-date-and-time-value{min-height:1.35em;text-align:center;margin:0;}
+#lectureDate::-webkit-calendar-picker-indicator{margin:0 0 0 8px;flex-shrink:0;}
+#lectureDialog .dialog-content{min-width:0;overflow-x:hidden;}
+#lectureDialog label[for="lectureDate"]{display:block;min-width:0;}
+#lectureDialog input,#lectureDialog textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
 .shared-viewer #emptyLectures{margin-top:20px;}
+
+
+.niv-library{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;min-width:0}
+.niv-search-results{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:8px;max-height:260px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.5}
+.niv-result{padding:10px 0;border-bottom:1px solid var(--line)}
+.niv-result:last-child{border-bottom:0}
+.niv-result strong{display:block;margin-bottom:4px}
+.niv-library input[type=file]{font-size:14px;max-width:100%}
+
+/* Built-in NIV New Testament reader */
+.niv-reader{margin-top:1rem;padding:1rem;border:1px solid var(--border-color, #3c4658);border-radius:12px;min-width:0}
+.niv-reader h3{margin:.1rem 0 .5rem;font-size:1.05rem}
+.niv-book-text{margin-top:.75rem;max-height:280px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;padding:.85rem;border-radius:8px;background:rgba(127,127,127,.10);font-size:1rem;overscroll-behavior:contain}
+
+/* Compact Bible reference actions and structured chapter reader */
+.compact-verse-actions{display:flex;gap:8px;margin:8px 0 2px;justify-content:flex-start}
+.compact-action{min-height:36px!important;padding:7px 12px!important;font-size:14px!important;line-height:1.15;width:auto!important;flex:0 0 auto;border-radius:9px}
+.niv-reader{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.niv-reader summary{font-weight:800;cursor:pointer;padding:3px 0}
+.niv-reader-controls{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;margin-top:10px}
+.niv-reader-controls .field-label{min-width:0}
+.niv-reader-controls .large-control{margin-top:4px}
+.niv-book-text{margin-top:10px;max-height:300px;overflow:auto;overflow-wrap:anywhere;line-height:1.6;padding:8px 10px;border-radius:8px;background:rgba(127,127,127,.10);font-size:15px;overscroll-behavior:contain}
+.niv-verse{margin:0 0 9px}
+.niv-verse sup{font-size:.75em;font-weight:800;opacity:.75;margin-right:4px}
+@media(max-width:600px){.compact-verse-actions{display:flex!important;gap:7px}.compact-action{min-height:34px!important;padding:6px 10px!important;font-size:13px!important}.niv-reader-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.niv-book-text{max-height:240px;font-size:14px}}
+.niv-copy-actions{display:flex;justify-content:flex-end;margin-top:8px}
+.niv-verse{display:flex;align-items:flex-start;gap:8px;margin:0 0 10px}
+.niv-verse-text{flex:1;min-width:0}
+.niv-copy-verse{flex:0 0 auto;min-height:26px!important;padding:3px 7px!important;font-size:12px!important;line-height:1.1;width:auto!important;border-radius:7px}
+@media(max-width:600px){.niv-copy-verse{min-height:28px!important;padding:4px 7px!important}.niv-copy-actions{margin-top:6px}}

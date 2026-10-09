@@ -7,7 +7,8 @@
 <title>Bible Reading Tracker</title>
 <link rel="stylesheet" href="style.css?v=shared-readonly-2">
 <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script defer src="script.js?v=shared-readonly-2"></script>
+<script defer src="niv-nt.js"></script>
+<script defer src="script.js?v=xml-reader-1"></script>
 </head>
 <body class="dark">
 <header class="topbar">
@@ -89,20 +90,19 @@
         <label class="field-label" for="verseChapter">Chapter<input id="verseChapter" class="large-control" type="number" min="1" value="1" inputmode="numeric"></label>
         <label class="field-label" for="verseStart">Verse<input id="verseStart" class="large-control" type="number" min="1" value="1" inputmode="numeric"></label>
       </div>
-      <div class="verse-actions">
-        <button id="insertVerseBtn" class="button large-button" type="button">＋ Add Reference to Notes</button>
-        <button id="copyVerseBtn" class="button large-button" type="button">Copy Reference</button>
+      <div class="verse-actions compact-verse-actions">
+        <button id="insertVerseBtn" class="button compact-action" type="button" title="Insert this reference into Notes">＋ Add to Notes</button>
+        <button id="copyVerseBtn" class="button compact-action" type="button" title="Copy this reference">⧉ Copy Ref</button>
       </div>
-      <label class="field-label" for="verseTranslation">Bible translation</label>
-      <select id="verseTranslation" class="large-control">
-        <option value="RCPV">RCPV (Cebuano)</option>
-        <option value="NIV">NIV (English)</option>
-      </select>
-      <div class="verse-actions">
-        <button id="loadVerseTextBtn" class="button large-button" type="button">Get Verse Text</button>
-        <button id="copyVerseTextBtn" class="button large-button" type="button">Copy Verse Text</button>
-      </div>
-      <p id="verseStatus" class="small-note">Choose a reference and translation, then get the verse text.</p>
+      <details class="niv-reader" open>
+        <summary id="nivReaderTitle">Read New Testament (NIV)</summary>
+        <div class="niv-reader-controls">
+          <label class="field-label" for="nivReaderBook">Book<select id="nivReaderBook" class="large-control"></select></label>
+          <label class="field-label" for="nivReaderChapter">Chapter<select id="nivReaderChapter" class="large-control"></select></label>
+        </div>
+        <div class="niv-copy-actions"><button id="copyNivChapterBtn" class="button compact-action" type="button">⧉ Copy Chapter</button></div>
+        <div id="nivBookText" class="niv-book-text" tabindex="0" aria-live="polite">Loading New Testament text…</div>
+      </details>
     </fieldset>
     <label class="field-label" for="lectureLearning">Notes</label>
     <textarea id="lectureLearning" class="large-control lecture-textarea" rows="6" placeholder="Write the main points, lessons, and reflections..."></textarea>
