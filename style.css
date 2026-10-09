@@ -179,3 +179,11 @@ dialog::backdrop{background:#0009}.dialog-close{display:flex;justify-content:fle
 .shared-readonly-mode #lectureDetailDialog #deleteLectureBtn,
 .shared-readonly-mode #lectureDetailDialog #shareLectureBtn{display:none!important}
 .shared-readonly-mode #lectureDetailDialog #copyLectureBtn{display:inline-flex}
+
+
+/* Align the chapter reading-date field with the status buttons on mobile and desktop. */
+#chapterDialog label[for="chapterDate"]{display:block;min-width:0;}
+#chapterDate{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;line-height:1.35;}
+#chapterDate::-webkit-date-and-time-value{min-height:1.35em;text-align:center;margin:0;}
+#chapterDialog .dialog-content{min-width:0;overflow-x:hidden;}
+#chapterDialog .status-actions{width:100%;min-width:0;}
